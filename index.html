@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escala Jornadas - WFM System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- === SIDEBAR === -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">EJ</div>
+        <div class="brand-info">
+          <h1>Escala Jornadas</h1>
+          <span>Einstein WFM Core</span>
+        </div>
+      </div>
+      
+      <nav style="flex-grow: 1;">
+        <ul class="nav-menu">
+          <li class="nav-item active" data-tab="dashboard">
+            <button>
+              <span class="material-symbols-outlined">dashboard</span>
+              Painel Geral
+            </button>
+          </li>
+          <li class="nav-item" data-tab="escala">
+            <button>
+              <span class="material-symbols-outlined">calendar_month</span>
+              Escala Mensal
+            </button>
+          </li>
+          <li class="nav-item" data-tab="colaboradores">
+            <button>
+              <span class="material-symbols-outlined">group</span>
+              Colaboradores
+            </button>
+          </li>
+          <li class="nav-item" data-tab="trocas">
+            <button>
+              <span class="material-symbols-outlined">swap_calls</span>
+              Central de Trocas
+            </button>
+          </li>
+          <li class="nav-item" data-tab="dimensionamento">
+            <button>
+              <span class="material-symbols-outlined">monitoring</span>
+              Dimensionamento
+            </button>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-profile" id="sidebar-user-card" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 8px; border-radius: var(--radius-md); background-color: rgba(255,255,255,0.03);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="user-avatar" id="sidebar-user-avatar">AD</div>
+            <div class="user-details">
+              <h4 id="sidebar-user-name">Administrador</h4>
+              <p id="sidebar-user-role">Controle Total</p>
+            </div>
+          </div>
+          <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-muted);">logout</span>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- === MAIN CONTENT AREA === -->
+    <main class="main-content">
+      
+      <!-- === HEADER === -->
+      <header class="top-header">
+        <div class="header-title-area">
+          <h2 id="header-view-title">Painel Geral</h2>
+          <p id="header-view-subtitle">Resumo operacional e monitoramento de conformidade CLT</p>
+        </div>
+        <div class="header-actions">
+          <button class="notification-bell" id="btn-notifications-feed">
+            <span class="material-symbols-outlined">notifications</span>
+            <div class="notification-badge" id="alerts-count-badge">0</div>
+          </button>
+          <button class="btn btn-primary" id="btn-add-colaborador-quick">
+            <span class="material-symbols-outlined">person_add</span>
+            Adicionar
+          </button>
+        </div>
+      </header>
+      
+      <!-- ==========================================
+           TAB 1: PAINEL GERAL (DASHBOARD)
+           ========================================== -->
+      <section class="view-panel active" id="dashboard">
+        
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+          <div class="card stat-card primary">
+            <div class="stat-info">
+              <p>Total de Equipe</p>
+              <h3 id="stat-total-staff">--</h3>
+            </div>
+            <div class="stat-icon">
+              <span class="material-symbols-outlined">groups</span>
+            </div>
+          </div>
+          
+          <div class="card stat-card success">
+            <div class="stat-info">
+              <p>Ativos Hoje</p>
+              <h3 id="stat-active-today">--</h3>
+            </div>
+            <div class="stat-icon">
+              <span class="material-symbols-outlined">patient_list</span>
+            </div>
+          </div>
+          
+          <div class="card stat-card warning">
+            <div class="stat-info">
+              <p>Em Folga / LM</p>
+              <h3 id="stat-off-today">--</h3>
+            </div>
+            <div class="stat-icon">
+              <span class="material-symbols-outlined">hotel</span>
+            </div>
+          </div>
+          
+          <div class="card stat-card danger">
+            <div class="stat-info">
+              <p>Alertas CLT</p>
+              <h3 id="stat-clt-warnings">0</h3>
+            </div>
+            <div class="stat-icon">
+              <span class="material-symbols-outlined">gavel</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dashboard Layout -->
+        <div class="dashboard-layout">
+          
+          <!-- Left side: Dimensioning Preview & Stats -->
+          <div class="dashboard-left-col" style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined">bar_chart</span>
+                Dimensionamento de Equipe em Tempo Real
+              </h3>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px;">
+                Taxa de ocupação de leitos de UTI atual e comparação entre staff necessário vs escalado de plantão hoje.
+              </p>
+              
+              <div class="gauge-panel" style="padding: 16px; margin-bottom: 0;">
+                <div class="dim-gauge-label">
+                  <span>UTI Adulto - Status de Equipe</span>
+                  <span id="dash-dim-status-txt" style="font-weight: 700;">Carregando...</span>
+                </div>
+                <div class="progress-bar-container" style="height: 18px; margin: 12px 0;">
+                  <div class="progress-bar-fill" id="dash-dim-progress" style="width: 0%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 12px; color: var(--text-muted);">
+                  <span>Déficit Crítico</span>
+                  <span>Adequado</span>
+                  <span>Superavitário</span>
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;">
+                <div class="card" style="padding: 12px; text-align: center; background-color: var(--bg-app); border: none;">
+                  <p style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Leitos Ocupados</p>
+                  <h4 style="font-size: 20px; font-weight: 700; color: var(--primary);" id="dash-leitos-val">--/--</h4>
+                </div>
+                <div class="card" style="padding: 12px; text-align: center; background-color: var(--bg-app); border: none;">
+                  <p style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Enfermeiros Req.</p>
+                  <h4 style="font-size: 20px; font-weight: 700; color: var(--text-main);" id="dash-enf-req">--</h4>
+                </div>
+                <div class="card" style="padding: 12px; text-align: center; background-color: var(--bg-app); border: none;">
+                  <p style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Enfermeiros Ativos</p>
+                  <h4 style="font-size: 20px; font-weight: 700; color: var(--secondary);" id="dash-enf-act">--</h4>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card" style="flex-grow: 1;">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined">info</span>
+                Atalhos Rápidos de Ações
+              </h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <button class="btn btn-secondary" style="height: 64px; justify-content: flex-start; padding: 16px; gap: 12px;" onclick="window.switchTab('escala')">
+                  <span class="material-symbols-outlined" style="color: var(--primary); font-size: 28px;">calendar_month</span>
+                  <div style="text-align: left;">
+                    <h5 style="font-size: 13px; font-weight: 600;">Ver Escala Mensal</h5>
+                    <p style="font-size: 10.5px; color: var(--text-muted);">Montar turnos de plantões</p>
+                  </div>
+                </button>
+                <button class="btn btn-secondary" style="height: 64px; justify-content: flex-start; padding: 16px; gap: 12px;" onclick="window.switchTab('trocas')">
+                  <span class="material-symbols-outlined" style="color: var(--secondary); font-size: 28px;">swap_calls</span>
+                  <div style="text-align: left;">
+                    <h5 style="font-size: 13px; font-weight: 600;">Central de Trocas</h5>
+                    <p style="font-size: 10.5px; color: var(--text-muted);">Aprovar trocas sob regras CLT</p>
+                  </div>
+                </button>
+                <button class="btn btn-secondary" style="height: 64px; justify-content: flex-start; padding: 16px; gap: 12px;" onclick="window.switchTab('dimensionamento')">
+                  <span class="material-symbols-outlined" style="color: var(--warning); font-size: 28px;">monitoring</span>
+                  <div style="text-align: left;">
+                    <h5 style="font-size: 13px; font-weight: 600;">Dimensionar UTI</h5>
+                    <p style="font-size: 10.5px; color: var(--text-muted);">Calcular dimensionamento do Einstein</p>
+                  </div>
+                </button>
+                <button class="btn btn-secondary" style="height: 64px; justify-content: flex-start; padding: 16px; gap: 12px;" onclick="window.switchTab('colaboradores')">
+                  <span class="material-symbols-outlined" style="color: var(--danger); font-size: 28px;">group</span>
+                  <div style="text-align: left;">
+                    <h5 style="font-size: 13px; font-weight: 600;">Equipe Completa</h5>
+                    <p style="font-size: 10.5px; color: var(--text-muted);">Consultar cadastros de staff</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right side: Real-time Compliance Alerts -->
+          <div class="dashboard-right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined" style="color: var(--danger);">gavel</span>
+                Alertas Trabalhistas CLT
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                Conflitos e inconformidades detectadas na escala de plantões do mês vigente.
+              </p>
+              <div class="alerts-list" id="dashboard-alerts-list">
+                <!-- Dinamicamente preenchido -->
+                <div class="empty-alerts">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  <p>Nenhuma violação trabalhista detectada no mês!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ==========================================
+           TAB 2: ESCALA MENSAL (MATRIZ DE PLANTÃO)
+           ========================================== -->
+      <section class="view-panel" id="escala">
+        
+        <!-- Controls & Filters Bar -->
+        <div class="controls-bar">
+          <div class="filters-group">
+            <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
+              <select class="form-control" id="filter-sector">
+                <option value="all">Setor: Todos</option>
+                <option value="UTI Adulto">UTI Adulto</option>
+                <option value="Pronto Socorro">Pronto Socorro</option>
+                <option value="Enfermaria Geral">Enfermaria Geral</option>
+                <option value="Administrativo">Administrativo</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
+              <select class="form-control" id="filter-scale">
+                <option value="all">Jornada: Todas</option>
+                <option value="12x36">12x36</option>
+                <option value="6x1">6x1</option>
+                <option value="5x2">5x2</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0; position: relative;">
+              <input type="text" class="form-control" placeholder="Buscar profissional..." id="search-scale-employee" style="padding-left: 36px; min-width: 200px;">
+              <span class="material-symbols-outlined" style="position: absolute; left: 10px; top: 10px; font-size: 20px; color: var(--text-muted);">search</span>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="month-navigator">
+              <button class="notification-bell" style="width: 32px; height: 32px; border: none;" id="btn-prev-month">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <span class="month-label" id="label-current-month">Maio de 2026</span>
+              <button class="notification-bell" style="width: 32px; height: 32px; border: none;" id="btn-next-month">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+            
+            <button class="btn btn-primary" id="btn-open-custom-scale" style="background-color: var(--secondary); box-shadow: 0 4px 10px var(--secondary-glow); margin-right: 4px;">
+              <span class="material-symbols-outlined">add_circle</span>
+              Nova Escala
+            </button>
+            <button class="btn btn-secondary" id="btn-print-scale">
+              <span class="material-symbols-outlined">print</span>
+              Imprimir
+            </button>
+          </div>
+        </div>
+        
+        <!-- Automatic Shift Generator drawer -->
+        <div class="generator-drawer">
+          <div style="width: 100%; font-size: 13.5px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span class="material-symbols-outlined" style="color: var(--primary);">bolt</span>
+            Gerador Inteligente de Escala Automatizada
+          </div>
+          
+          <div class="form-group">
+            <label for="gen-employee">Profissional</label>
+            <select class="form-control" id="gen-employee">
+              <!-- Preenchido dinamicamente -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="gen-scale-type">Regime de Jornada</label>
+            <select class="form-control" id="gen-scale-type">
+              <option value="12x36">12x36 (Dia Sim / Dia Não)</option>
+              <option value="6x1">6x1 (Trabalha 6, Folga 1)</option>
+              <option value="5x2">5x2 (Segunda a Sexta)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="gen-start-date">Data de Início do Ciclo</label>
+            <input type="date" class="form-control" id="gen-start-date" value="2026-05-01">
+          </div>
+          
+          <div class="form-group">
+            <label for="gen-shift">Turno Base de Plantão</label>
+            <select class="form-control" id="gen-shift">
+              <option value="M">M - Manhã (07h às 13h / 07h às 19h)</option>
+              <option value="T">T - Tarde (13h às 19h)</option>
+              <option value="N">N - Noite (19h às 07h)</option>
+            </select>
+          </div>
+          
+          <button class="btn btn-primary" id="btn-trigger-generator">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            Gerar Escala
+          </button>
+        </div>
+        
+        <!-- Matrix / Grid Table -->
+        <div class="matrix-container">
+          <table class="matrix-table" id="scale-matrix-table">
+            <thead>
+              <tr id="matrix-header-row">
+                <th class="col-employee">Profissional</th>
+                <!-- Gerado dinamicamente -->
+              </tr>
+            </thead>
+            <tbody id="matrix-body-rows">
+              <!-- Gerado dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Legend & Metadata -->
+        <div class="legend-container">
+          <div class="legend-item">
+            <div class="legend-box shift-badge M">M</div>
+            <span>Plantão Manhã</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box shift-badge T">T</div>
+            <span>Plantão Tarde</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box shift-badge N">N</div>
+            <span>Plantão Noite</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box shift-badge F">F</div>
+            <span>Folga Programada</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box shift-badge LM">LM</div>
+            <span>Licença Médica / Afastamento</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box shift-badge empty">-</div>
+            <span>Turno Vazio</span>
+          </div>
+          <div class="legend-item" style="margin-left: auto; border-left: 1px solid var(--border); padding-left: 20px;">
+            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 2px solid var(--danger);"></span>
+            <span style="color: var(--danger); font-weight: 600;">Inconformidade CLT Detectada</span>
+          </div>
+        </div>
+        
+      </section>
+      
+      <!-- ==========================================
+           TAB 3: COLABORADORES
+           ========================================== -->
+      <section class="view-panel" id="colaboradores">
+        <div class="staff-header-actions">
+          <div class="form-group" style="margin-bottom: 0; position: relative; width: 320px;">
+            <input type="text" class="form-control" placeholder="Pesquisar colaborador..." id="search-staff-input" style="padding-left: 36px;">
+            <span class="material-symbols-outlined" style="position: absolute; left: 10px; top: 10px; font-size: 20px; color: var(--text-muted);">search</span>
+          </div>
+          <button class="btn btn-primary" id="btn-add-colaborador-full">
+            <span class="material-symbols-outlined">person_add</span>
+            Adicionar Colaborador
+          </button>
+        </div>
+        
+        <div class="staff-grid" id="staff-cards-grid">
+          <!-- Preenchido dinamicamente -->
+        </div>
+      </section>
+      
+      <!-- ==========================================
+           TAB 4: CENTRAL DE TROCAS DE PLANTÃO
+           ========================================== -->
+      <section class="view-panel" id="trocas">
+        <div class="trades-layout">
+          
+          <!-- Left Column: Trade Config Form -->
+          <div class="trade-form-section">
+            <div class="card">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined">swap_horizontal_circle</span>
+                Solicitar Troca de Plantão
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+                Selecione os dois colaboradores e seus respectivos dias de plantão a serem trocados na matriz.
+              </p>
+              
+              <!-- Colaborador A (Solicitante) -->
+              <div class="trade-party-card">
+                <h4>
+                  <span class="material-symbols-outlined">person</span>
+                  Colaborador A (Solicitante)
+                </h4>
+                <div class="form-group">
+                  <label for="trade-emp-a">Profissional</label>
+                  <select class="form-control" id="trade-emp-a">
+                    <option value="">Selecione...</option>
+                    <!-- Dinâmico -->
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="trade-day-a">Turno a Ceder (Dia do Mês)</label>
+                  <select class="form-control" id="trade-day-a" disabled>
+                    <option value="">Aguardando seleção...</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Exchange visual separator -->
+              <div class="exchange-icon-container">
+                <div class="exchange-icon-circle">
+                  <span class="material-symbols-outlined">sync_alt</span>
+                </div>
+              </div>
+              
+              <!-- Colaborador B (Aceitante) -->
+              <div class="trade-party-card">
+                <h4>
+                  <span class="material-symbols-outlined">person_outline</span>
+                  Colaborador B (Aceitante)
+                </h4>
+                <div class="form-group">
+                  <label for="trade-emp-b">Profissional</label>
+                  <select class="form-control" id="trade-emp-b">
+                    <option value="">Selecione...</option>
+                    <!-- Dinâmico -->
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="trade-day-b">Turno a Ceder (Dia do Mês)</label>
+                  <select class="form-control" id="trade-day-b" disabled>
+                    <option value="">Aguardando seleção...</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button class="btn btn-secondary" style="flex-grow: 1;" id="btn-validate-trade">
+                  <span class="material-symbols-outlined">done_all</span>
+                  Validar Viabilidade Trabalhista
+                </button>
+                <button class="btn btn-primary" style="flex-grow: 1;" id="btn-execute-trade" disabled>
+                  <span class="material-symbols-outlined">published_with_changes</span>
+                  Executar Troca
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Column: Live CLT Checker -->
+          <div class="trade-validation-section">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="validation-header">
+                <h3 class="card-title" style="margin-bottom: 4px;">
+                  <span class="material-symbols-outlined" style="color: var(--secondary);">gavel</span>
+                  Relatório de Viabilidade CLT
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted);">
+                  Validando regras trabalhistas com base na convenção coletiva e limites da CLT.
+                </p>
+              </div>
+              
+              <div class="validation-checklist" id="trade-validation-checklist">
+                <!-- Estado Padrão Neutro -->
+                <div class="validation-item neutral">
+                  <div class="validation-item-icon">
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                  </div>
+                  <div class="validation-details">
+                    <h5>Aguardando Configuração</h5>
+                    <p>Selecione os colaboradores e turnos para rodar a análise de conformidade jurídica.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ==========================================
+           TAB 5: DIMENSIONAMENTO INTELIGENTE (WFM)
+           ========================================== -->
+      <section class="view-panel" id="dimensionamento">
+        <div class="dim-layout">
+          
+          <!-- Left Column: Input Sliders -->
+          <div class="dim-simulator">
+            <div class="card">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined">query_stats</span>
+                Dimensionamento de Escalas (Indicadores Operacionais)
+              </h3>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 24px;">
+                Mapeie a carga operacional em tempo real para regular a escala. Conforme leitos e complexidades variam, calcule se a escala atual é adequada.
+              </p>
+              
+              <!-- Sector selector -->
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label for="dim-sector-select">Setor de Atendimento</label>
+                <select class="form-control" id="dim-sector-select">
+                  <option value="UTI Adulto">UTI Adulto - Ala Principal</option>
+                  <option value="Pronto Socorro">Pronto Socorro - Emergência</option>
+                  <option value="Enfermaria Geral">Enfermaria Geral - Internações</option>
+                </select>
+              </div>
+              
+              <!-- Total Beds Range Slider -->
+              <div class="range-slider-group">
+                <div class="slider-header">
+                  <span>Capacidade de Leitos (Total)</span>
+                  <span class="slider-val" id="val-dim-beds">40 leitos</span>
+                </div>
+                <input type="range" class="custom-range" id="dim-beds-range" min="10" max="100" value="40" step="5">
+              </div>
+              
+              <!-- Occupancy Slider -->
+              <div class="range-slider-group">
+                <div class="slider-header">
+                  <span>Taxa de Ocupação Atual (%)</span>
+                  <span class="slider-val" id="val-dim-occupancy">75%</span>
+                </div>
+                <input type="range" class="custom-range" id="dim-occupancy-range" min="0" max="100" value="75" step="5">
+              </div>
+              
+              <!-- Patient Complexity Picker -->
+              <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                <label style="margin-bottom: 8px; display: block;">Nível de Dependência Média dos Pacientes</label>
+                <div class="custom-select-buttons" id="dim-complexity-buttons">
+                  <button class="select-btn" data-ratio="6" data-level="mínimo">
+                    <h5>Mínimo</h5>
+                    <p>1 Enf. / 6 Pac.</p>
+                  </button>
+                  <button class="select-btn" data-ratio="4" data-level="intermediário">
+                    <h5>Intermediário</h5>
+                    <p>1 Enf. / 4 Pac.</p>
+                  </button>
+                  <button class="select-btn active" data-ratio="3" data-level="semi-intensivo">
+                    <h5>Semi-Intensivo</h5>
+                    <p>1 Enf. / 3 Pac.</p>
+                  </button>
+                  <button class="select-btn" data-ratio="2" data-level="intensivo">
+                    <h5>Intensivo (UTI)</h5>
+                    <p>1 Enf. / 2 Pac.</p>
+                  </button>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <!-- Right Column: Calculation results -->
+          <div class="dim-results">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 20px;">
+              <h3 class="card-title">
+                <span class="material-symbols-outlined" style="color: var(--secondary);">analytics</span>
+                Resultado do Dimensionamento
+              </h3>
+              
+              <div class="gauge-panel">
+                <div class="dim-gauge-label">
+                  <span>Status do Dimensionamento</span>
+                  <span id="dim-status-percentage" style="font-weight: 700;">--</span>
+                </div>
+                
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="dim-progress-bar-fill" style="width: 0%;"></div>
+                  <div class="progress-bar-markers">
+                    <div class="progress-marker"></div>
+                    <div class="progress-marker"></div>
+                    <div class="progress-marker"></div>
+                  </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; width: 100%; font-size: 11px; color: var(--text-muted);">
+                  <span>Déficit (&lt;85%)</span>
+                  <span>Adequado (85%-115%)</span>
+                  <span>Superávit (&gt;115%)</span>
+                </div>
+              </div>
+              
+              <!-- Numeric Counters -->
+              <div class="comparison-box">
+                <div class="comparison-card req">
+                  <p>Necessários para Turno</p>
+                  <h2 id="dim-staff-required">--</h2>
+                </div>
+                <div class="comparison-card act">
+                  <p>Escalados Hoje</p>
+                  <h2 id="dim-staff-actual">--</h2>
+                </div>
+              </div>
+              
+              <!-- Warning Banner -->
+              <div class="dim-status-alert optimal" id="dim-alert-banner">
+                <span class="material-symbols-outlined" id="dim-alert-icon">check_circle</span>
+                <span id="dim-alert-text">Dimensionamento adequado para a ocupação do setor.</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+    </main>
+  </div>
+  
+  <!-- ==========================================
+       MODAL 1: EDITAR TURNO / PLANTÃO
+       ========================================== -->
+  <div class="modal-overlay" id="modal-edit-shift">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-edit-title">Editar Plantão</h3>
+        <button class="modal-close" onclick="window.closeModal('modal-edit-shift')">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;" id="modal-edit-subtitle">
+          Alterando o turno do colaborador no dia especificado.
+        </p>
+        
+        <div class="form-group">
+          <label for="edit-shift-type">Selecione o Turno</label>
+          <select class="form-control" id="edit-shift-type">
+            <option value="M">M - Manhã (07h às 13h / 07h às 19h)</option>
+            <option value="T">T - Tarde (13h às 19h)</option>
+            <option value="N">N - Noite (19h às 07h)</option>
+            <option value="F">F - Folga Programada</option>
+            <option value="LM">LM - Licença Médica</option>
+            <option value="empty">- Sem Turno Escalado</option>
+          </select>
+        </div>
+        
+        <div class="alert-item warning" style="margin-top: 16px; display: none;" id="modal-edit-alert">
+          <div class="alert-item-icon">
+            <span class="material-symbols-outlined">warning</span>
+          </div>
+          <div class="alert-details">
+            <h5>Aviso de Conflito Trabalhista</h5>
+            <p id="modal-edit-alert-text">Conflito de descanso detectado.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeModal('modal-edit-shift')">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-shift">Salvar Alteração</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: CADASTRO DE COLABORADOR
+       ========================================== -->
+  <div class="modal-overlay" id="modal-add-employee">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Cadastrar Novo Colaborador</h3>
+        <button class="modal-close" onclick="window.closeModal('modal-add-employee')">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-employee">
+          <div class="form-group">
+            <label for="emp-name">Nome Completo</label>
+            <input type="text" class="form-control" id="emp-name" placeholder="Ex: Ana Maria Silva" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="emp-role">Cargo</label>
+            <input type="text" class="form-control" id="emp-role" placeholder="Ex: Enfermeiro Obstetra, Técnico de Enfermagem" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="emp-sector">Setor de Atendimento</label>
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <select class="form-control" id="emp-sector" style="flex-grow: 1;">
+                <!-- Preenchido dinamicamente em app.js -->
+              </select>
+              <input type="text" class="form-control" id="emp-sector-new" placeholder="Novo Setor..." style="display: none; flex-grow: 1;">
+              <button type="button" class="btn btn-secondary" id="btn-toggle-new-sector" style="padding: 10px; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; flex-shrink: 0;">
+                <span class="material-symbols-outlined" id="toggle-sector-icon">add</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="emp-scale">Escala Padrão CLT</label>
+            <select class="form-control" id="emp-scale">
+              <option value="12x36">12x36 (12 Horas por 36 de Descanso)</option>
+              <option value="6x1">6x1 (6 Dias Trabalhados por 1 Folga)</option>
+              <option value="5x2">5x2 (5 Dias Trabalhados por 2 Folgas)</option>
+            </select>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="emp-email">E-mail para Notificações</label>
+            <input type="email" class="form-control" id="emp-email" placeholder="Ex: ana.silva@hospital.com.br" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeModal('modal-add-employee')">Cancelar</button>
+        <button class="btn btn-primary" id="btn-submit-employee">Cadastrar Profissional</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ==========================================
+       MODAL 3: CONFIGURAR NOVA ESCALA (SETORES/TURNOS/COLABORADORES)
+       ========================================== -->
+  <div class="modal-overlay" id="modal-custom-scale">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Configurar Nova Escala</h3>
+        <button class="modal-close" onclick="window.closeModal('modal-custom-scale')">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 480px; overflow-y: auto;">
+        
+        <!-- Nome do Novo Setor -->
+        <div class="form-group">
+          <label for="custom-sector-name">Nome do Setor / Ala da Escala</label>
+          <input type="text" class="form-control" id="custom-sector-name" placeholder="Ex: UTI Cardíaca, Urgência Pediátrica, Pediatria" required>
+        </div>
+        
+        <!-- Turno Customizado para o Setor -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="custom-shift-code">Código do Turno de Alocação</label>
+            <select class="form-control" id="custom-shift-code">
+              <option value="M">M - Manhã</option>
+              <option value="T">T - Tarde</option>
+              <option value="N">N - Noite</option>
+              <option value="M1">M1 - Manhã Estendido</option>
+              <option value="T1">T1 - Tarde Estendido</option>
+              <option value="N1">N1 - Noite Estendido</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-scale-type">Regime de Jornada Padrão</label>
+            <select class="form-control" id="custom-scale-type">
+              <option value="12x36">12x36 (Dia Sim / Dia Não)</option>
+              <option value="6x1">6x1 (Trabalha 6, Folga 1)</option>
+              <option value="5x2">5x2 (Segunda a Sexta)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="custom-start-date">Data de Início do Ciclo</label>
+            <input type="date" class="form-control" id="custom-start-date" value="2026-05-16">
+          </div>
+          <div class="form-group">
+            <label for="custom-shift-hours">Horário de Trabalho (Informação)</label>
+            <input type="text" class="form-control" id="custom-shift-hours" placeholder="Ex: 07:00 às 19:00" value="07:00 às 19:00">
+          </div>
+        </div>
+        
+        <!-- Selecionar Colaboradores a Alocar -->
+        <div class="form-group">
+          <label style="margin-bottom: 8px; display: block; font-weight: 500;">Alocar Colaboradores neste Setor & Escala</label>
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-color: var(--bg-app);" id="custom-scale-employees-checklist">
+            <!-- Dinâmico em app.js -->
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.closeModal('modal-custom-scale')">Cancelar</button>
+        <button class="btn btn-primary" id="btn-submit-custom-scale">Criar e Gerar Escala</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 4: LOGIN / HIERARQUIA DE ACESSO
+       ========================================== -->
+  <div class="modal-overlay active" id="modal-login" style="background-color: rgba(10, 18, 30, 0.95); backdrop-filter: blur(10px);">
+    <div class="modal-card" style="max-width: 400px; border-top: 5px solid var(--primary);">
+      <div class="modal-header" style="justify-content: center;">
+        <h3 style="display: flex; align-items: center; gap: 8px; font-size: 18px;">
+          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 24px;">lock</span>
+          Controle de Acesso - Einstein
+        </h3>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">
+          Selecione o seu perfil profissional e digite a senha correspondente para acessar as funcionalidades do sistema.
+        </p>
+        
+        <div class="form-group">
+          <label for="login-profile">Perfil de Acesso</label>
+          <select class="form-control" id="login-profile">
+            <option value="admin">Administrador (Controle Total)</option>
+            <option value="enfermeiro">Enfermeiro(a) Chefe (Mariana Souza - Escala de Técnicos)</option>
+            <option value="tecnico">Técnico(a) em Enfermagem (Roberto Silva - Minhas Folgas)</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="login-password-group">
+          <label for="login-password">Senha de Segurança</label>
+          <input type="password" class="form-control" id="login-password" placeholder="Digite a senha" value="">
+        </div>
+        
+        <div class="alert-item danger" style="margin-top: 16px; display: none; padding: 10px;" id="login-error-alert">
+          <div class="alert-item-icon">
+            <span class="material-symbols-outlined" style="font-size: 20px;">error</span>
+          </div>
+          <div class="alert-details">
+            <h5 style="font-size: 13px;">Acesso Negado</h5>
+            <p style="font-size: 11px;" id="login-error-text">Senha de segurança inválida para este perfil.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="background-color: var(--bg-app); padding: 12px 24px;">
+        <button class="btn btn-primary" id="btn-login-submit" style="width: 100%; height: 42px;">Acessar Sistema</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Overlay Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main JavaScript App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
